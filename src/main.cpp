@@ -3,9 +3,8 @@
 #include <ESP8266WebServer.h>
 #include "MD_Parola.h"
 #include "MD_MAX72xx.h"
-#include <WiFiUdp.h>
-#include "NTPClient.h"
 #include <WebSocketsClient.h>
+#include <ArduinoJson.h>
 
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 #define HARDWARE_TYPE2 MD_MAX72XX::ICSTATION_HW
@@ -36,42 +35,60 @@ int str_len = 0;
 int linus_done = 0;
 int johannes_done = 0;
 const long utcOffsetInSeconds = 3600;
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 const char *ssid = "Martin Router King";
 const char *password = "ihaveastream5%";
 
 WebSocketsClient webSocket;
 
-void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
+    char* pch = NULL;
 
-
-    switch(type) {
+    switch (type) {
         case WStype_DISCONNECTED:
-            Serial.println("[WSc] Disconnected!\n");
+            Serial.printf("[WSc] Disconnected!\n");
             break;
-        case WStype_CONNECTED:
-        {
-            Serial.print("[WSc] Connected to url: ");
-            Serial.println((char *)payload);
+        case WStype_CONNECTED: {
+            Serial.printf("[WSc] Connected to url: %s\n", payload);
             // send message to server when Connected
-            webSocket.sendTXT("Connected");
+            // webSocket.sendTXT("Connected");
         }
             break;
         case WStype_TEXT:
-            Serial.print("[WSc] get text: ");
-            Serial.println((char *)payload);
+            Serial.printf("[WSc] get text: %s\n", payload);
+
+            pch = strtok((char*)payload,"\n");
+            buf = pch;
+            str_len = buf.length() + 1;
+            buf.toCharArray(newMessage, str_len);
+            newMessageAvailable = true;
+
+
+            pch = strtok(NULL,"\n");
+            buf = pch;
+            str_len = buf.length() + 1;
+            buf.toCharArray(newMessage2, str_len);
+            newMessageAvailable2 = true;
             // send message to server
             // webSocket.sendTXT("message here");
+            Serial.printf("new message: %s\n", newMessage);
+            Serial.printf("new message2: %s\n", newMessage2);
+
             break;
         case WStype_BIN:
-            Serial.print("[WSc] get binary length: ");
-            Serial.println(length);
-            // hexdump(payload, length);
+            Serial.printf("[WSc] get binary length: %u\n", length);
+            hexdump(payload, length);
 
             // send data to server
             // webSocket.sendBIN(payload, length);
+            break;
+        case WStype_PING:
+            // pong will be send automatically
+            Serial.printf("[WSc] get ping\n");
+            break;
+        case WStype_PONG:
+            // answer to a ping we send
+            Serial.printf("[WSc] get pong\n");
             break;
     }
 
@@ -92,7 +109,8 @@ void setup() {
     Serial.println();
     Serial.print("Connecting to ");
     Serial.println(ssid);
-    //WiFi.mode(WIFI_STA);
+
+    WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED) {
@@ -106,34 +124,42 @@ void setup() {
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 
-    webSocket.begin("192.168.178.1", 13254);
+    webSocket.begin("192.168.178.69", 13254);
     webSocket.onEvent(webSocketEvent);
-
+    // try ever 5000 again if connection has failed
+    webSocket.setReconnectInterval(5000);
 }
 
 void loop() {
 
     webSocket.loop();
+    String message;
 
     if (digitalRead(D2) == HIGH) {
-        linus_done = 1;
+        DynamicJsonDocument doc(200); // fixed size
+
+        JsonObject root = doc.to<JsonObject>();
+        root["client"] = "display";
+        root["linus"] = "0";
+        root["johannes"] = "1";
+        char   buffer[200]; // create temp buffer
+        size_t len = serializeJson(root, buffer);  // serialize to buffer
+        webSocket.sendTXT(buffer);
         delay(100);
     }
 
     if (digitalRead(D1) == HIGH) {
-        johannes_done = 1;
+        DynamicJsonDocument doc(200); // fixed size
+
+        JsonObject root = doc.to<JsonObject>();
+        root["client"] = "display";
+        root["linus"] = "1";
+        root["johannes"] = "0";
+        char   buffer[200]; // create temp buffer
+        size_t len = serializeJson(root, buffer);  // serialize to buffer
+        webSocket.sendTXT(buffer);
         delay(100);
     }
-
-    buf = "gate closed";
-    str_len = buf.length() + 1;
-    buf.toCharArray(newMessage2, str_len);
-    newMessageAvailable2 = true;
-
-    buf = "gate closed";
-    str_len = buf.length() + 1;
-    buf.toCharArray(newMessage, str_len);
-    newMessageAvailable = true;
 
     if (P2.displayAnimate()) {
         if (newMessageAvailable2) {
@@ -150,5 +176,4 @@ void loop() {
         P.displayReset();
     }
 
-    server.handleClient();
 }
