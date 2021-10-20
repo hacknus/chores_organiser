@@ -2,37 +2,37 @@
   "chores": [
     {
       "name": "Bad",
-      "countdown": -1,
+      "last": "20-10-2021",
       "period": 6,
       "who": 0
     },
     {
       "name": "Küche",
-      "countdown": -4,
+      "last": "20-10-2021",
       "period": 10,
       "who": 0
     },
     {
       "name": "Abfall",
-      "countdown": -2,
+      "last": "20-10-2021",
       "period": 13,
       "who": 0
     },
     {
       "name": "Staubsaugen",
-      "countdown": 0,
+      "last": "20-10-2021",
       "period": 8,
       "who": 0
     },
     {
       "name": "Boden",
-      "countdown": 0,
+      "last": "20-10-2021",
       "period": 15,
       "who": 0
     },
     {
       "name": "Kompost",
-      "countdown": 0,
+      "last": "20-10-2021",
       "period": 8,
       "who": 0
     }

@@ -13,7 +13,7 @@ class Chore:
         if self.fixed:
             self.next_date = self.next_date + timedelta(days=self.period)
         else:
-            self.next_date = datetime.now() + timedelta(days=self.period)
+            self.next_date = datetime.now().date() + timedelta(days=self.period)
         self.who = 1 - self.who
 
 
