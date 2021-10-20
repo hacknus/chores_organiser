@@ -1,7 +1,8 @@
 import logging
 from websocket_server import WebsocketServer
 import json
-from chore import Chore, timedChore
+from chore import Chore
+from datetime import datetime, timedelta
 
 
 def new_client(client, server):
@@ -24,11 +25,15 @@ def init():
     file = open("state.json")
     d = json.load(file)
     chores = []
-    timedChores = []
     for c in d["chores"]:
-        chores.append(Chore(c["name"], c["period"], c["countdown"], c["who"]))
+        next_date = datetime.now() + timedelta(days=c["countdown"])
+        chores.append(Chore(c["name"], c["period"], next_date, c["who"]))
     for c in d["timedChores"]:
-        timedChores.append(timedChore(c["name"], c["day"], c["n"], c["last"], c["who"]))
+        next_date = c["last"]
+        while next_date + timedelta(days=c["period"]) < datetime.now():
+            # condition does not work with < operator
+            next_date = next_date + timedelta(days=c["period"])
+        chores.append(Chore(c["name"], c["period"], next_date, c["who"], True))
 
 
 def main():

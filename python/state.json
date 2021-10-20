@@ -40,15 +40,13 @@
   "timedChores": [
     {
       "name": "Papier",
-      "day": 1,
-      "n": 2,
+      "period": 14,
       "last": "",
       "who": 0
     },
     {
       "name": "Karton",
-      "day": 2,
-      "n": 2,
+      "period": 14,
       "last": "",
       "who": 0
     }
