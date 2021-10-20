@@ -2,19 +2,19 @@
   "chores": [
     {
       "name": "Bad",
-      "countdown": 0,
+      "countdown": -1,
       "period": 6,
       "who": 0
     },
     {
       "name": "Küche",
-      "countdown": 0,
+      "countdown": -4,
       "period": 10,
       "who": 0
     },
     {
       "name": "Abfall",
-      "countdown": 0,
+      "countdown": -2,
       "period": 13,
       "who": 0
     },
@@ -37,17 +37,17 @@
       "who": 0
     }
   ],
-  "timedChores": [
+  "fixedChores": [
     {
       "name": "Papier",
       "period": 14,
-      "last": "",
+      "last": "20-10-2021",
       "who": 0
     },
     {
       "name": "Karton",
       "period": 14,
-      "last": "",
+      "last": "27-10-2021",
       "who": 0
     }
   ]
