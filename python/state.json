@@ -1,0 +1,56 @@
+{
+  "chores": [
+    {
+      "name": "Bad",
+      "countdown": 0,
+      "period": 6,
+      "who": 0
+    },
+    {
+      "name": "Küche",
+      "countdown": 0,
+      "period": 10,
+      "who": 0
+    },
+    {
+      "name": "Abfall",
+      "countdown": 0,
+      "period": 13,
+      "who": 0
+    },
+    {
+      "name": "Staubsaugen",
+      "countdown": 0,
+      "period": 8,
+      "who": 0
+    },
+    {
+      "name": "Boden",
+      "countdown": 0,
+      "period": 15,
+      "who": 0
+    },
+    {
+      "name": "Kompost",
+      "countdown": 0,
+      "period": 8,
+      "who": 0
+    }
+  ],
+  "timedChores": [
+    {
+      "name": "Papier",
+      "day": 1,
+      "n": 2,
+      "last": "",
+      "who": 0
+    },
+    {
+      "name": "Karton",
+      "day": 2,
+      "n": 2,
+      "last": "",
+      "who": 0
+    }
+  ]
+}
