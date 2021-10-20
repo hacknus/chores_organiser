@@ -14,10 +14,12 @@ class Server:
 
     def new_client(self, client, server):
         # server.send_message(client, "OK")
+        print("client connected")
         self.clients.append(client)
 
     def bye_client(self, client, server):
-        self.clients.pop(client)
+        self.clients.remove(client)
+        print("client left")
 
     def new_msg(self, client, server, message):
         print("new message")
@@ -30,10 +32,10 @@ class Server:
                 dt_linus, dt_johannes = planner.get_due_today()
                 row1 = dt_linus[0]
                 row2 = dt_johannes[0]
-                row1 = "Es git nie z'phil collins"
-                row2 = "genösis"
-                server.send_message(client, row1)
-                server.send_message(client, row2)
+                row1 = "Hoi Johannes"
+                row2 = "Sorry, wegem nervige Liecht... MASCHENDRAHTZAUN"
+                message = row1 + "\n" + row2
+                server.send_message(client, message)
                 return [d["linus"], d["johannes"]]
         except KeyError:
             return [0, 0]
