@@ -60,10 +60,14 @@ class Server:
         print("updated display")
 
     def update(self):
+        last_day = -1
         while True:
             now = datetime.now()
-            if now.hour == 4:
+            day = now.day
+            hour = now.hour
+            if hour >= 4 and last_day != day:
                 self.update_display()
+                last_day = day
                 time.sleep(60 * 60)
 
     def run_server(self):
