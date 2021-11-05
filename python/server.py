@@ -37,27 +37,28 @@ class Server:
             if d["client"] == "display":
                 self.display = client
                 self.update_display()
-                self.organiser.done([d["linus"], d["johannes"]])
+                self.organiser.done([d["johannes"], d["linus"]])
         except KeyError:
             pass
 
     def update_display(self):
         dt_linus, dt_johannes = self.organiser.get_due_today()
-        print("updating display")
         if dt_linus[0] != "":
-            row1 = dt_linus[0].name
-        else:
-            row1 = " "
-        if dt_johannes[0] != "":
-            row2 = dt_johannes[0].name
+            row2 = dt_linus[0].name + (len(dt_linus) - 1) * "."
         else:
             row2 = " "
-        # row1 = "Hoi Johannes"
-        # row2 = "Sorry, wegem nervige Liecht... MASCHENDRAHTZAUN"
-        message = row1 + "\n" + row2
-        print(f"sending message: {message}")
-        self.server.send_message(self.display, message)
-        print("updated display")
+        if dt_johannes[0] != "":
+            row1 = dt_johannes[0].name + (len(dt_johannes) - 1) * "."
+        else:
+            row1 = " "
+        # row1 = "Hoi Simon"
+        # row2 = "Misser Bresidend"
+        message = row2 + "\n" + row1
+        if self.display:
+            print("updating display")
+            print(f"sending message: {message}")
+            self.server.send_message(self.display, message)
+            print("updated display")
 
     def update(self):
         last_day = -1
@@ -86,19 +87,19 @@ class Organiser:
         self.chores = []
         for c in d["chores"]:
             next_date = datetime.strptime(c["last"], '%d-%m-%Y').date()
-            self.chores.append(Chore(c["name"], c["period"], next_date, c["who"]))
+            self.chores.append(Chore(c["name"], int(c["period"]), next_date, int(c["who"])))
         for c in d["fixedChores"]:
             next_date = datetime.strptime(c["last"], '%d-%m-%Y').date()
-            while next_date + timedelta(days=c["period"]) < datetime.now().date():
-                next_date = next_date + timedelta(days=c["period"])
-            self.chores.append(Chore(c["name"], c["period"], next_date, c["who"], True))
+            while next_date + timedelta(days=int(c["period"])) < datetime.now().date():
+                next_date = next_date + timedelta(days=int(c["period"]))
+            self.chores.append(Chore(c["name"], int(c["period"]), next_date, int(c["who"]), True))
 
     def get_due_today(self):
         self.due_today_linus = []
         self.due_today_johannes = []
         for chore in self.chores:
             if chore.next_date <= datetime.today().date():
-                print(f"{chore.name} is due today")
+                print(f"{chore.name} is due today by {chore.who}")
                 if chore.who == 1:
                     self.due_today_linus.append(chore)
                 if chore.who == 0:
@@ -112,33 +113,36 @@ class Organiser:
         return self.due_today_linus, self.due_today_johannes
 
     def done(self, msg):
-        linus = msg[0]
-        johannes = msg[1]
-        if linus == 1 and len(self.due_today_linus) != 0:
+        johannes = int(msg[0])
+        linus = int(msg[1])
+        if linus == 1 and self.due_today_linus[0] != "":
             ind = self.chores.index(self.due_today_linus[0])
             self.chores[ind].done()
-        if johannes == 1 and len(self.due_today_johannes) != 0:
+        if johannes == 1 and self.due_today_johannes[0] != "":
             ind = self.chores.index(self.due_today_johannes[0])
             self.chores[ind].done()
         d = {}
         chores = []
         fixedChores = []
+        print("updating json")
+        print(len(self.chores))
         for c in self.chores:
-            di = {}
+            print(c.name, c.next_date)
             if c.fixed:
                 chores.append({
-                    di["name"]: c["name"],
-                    di["last"]: c["next_date"],
-                    di["period"]: c["period"],
-                    di["who"]: c["who"]})
+                    "name": c.name,
+                    "last": c.next_date.strftime("%d-%m-%Y"),
+                    "period": str(c.period),
+                    "who": str(c.who)})
             else:
                 fixedChores.append({
-                    di["name"]: c["name"],
-                    di["last"]: c["next_date"],
-                    di["period"]: c["period"],
-                    di["who"]: c["who"]})
+                    "name": c.name,
+                    "last": c.next_date.strftime("%d-%m-%Y"),
+                    "period": str(c.period),
+                    "who": str(c.who)})
         d["chores"] = chores
-        d["fixedchores"] = fixedChores
+        d["fixedChores"] = fixedChores
+        print(d)
         with open('state.json', 'w') as f:
             json.dump(d, f)
 
