@@ -4,6 +4,8 @@ import json
 from chore import Chore
 from datetime import datetime, timedelta
 import threading
+from threading import Event
+from timedThread import timedThread
 import time
 
 
@@ -41,18 +43,20 @@ class Server:
         except KeyError:
             pass
 
-    def update_display(self):
-        dt_linus, dt_johannes = self.organiser.get_due_today()
-        if dt_linus[0] != "":
-            row2 = dt_linus[0].name + (len(dt_linus) - 1) * "."
+    def update_display(self, msg=None):
+        if msg == None:
+            dt_linus, dt_johannes = self.organiser.get_due_today()
+            if dt_linus[0] != "":
+                row2 = dt_linus[0].name + (len(dt_linus) - 1) * "."
+            else:
+                row2 = " "
+            if dt_johannes[0] != "":
+                row1 = dt_johannes[0].name + (len(dt_johannes) - 1) * "."
+            else:
+                row1 = " "
         else:
-            row2 = " "
-        if dt_johannes[0] != "":
-            row1 = dt_johannes[0].name + (len(dt_johannes) - 1) * "."
-        else:
-            row1 = " "
-        # row1 = "Hoi Simon"
-        # row2 = "Misser Bresidend"
+            row1 = msg["row1"]
+            row2 = msg["row2"]
         message = row2 + "\n" + row1
         if self.display:
             print("updating display")
@@ -60,16 +64,14 @@ class Server:
             self.server.send_message(self.display, message)
             print("updated display")
 
-    def update(self):
-        last_day = -1
-        while True:
-            now = datetime.now()
-            day = now.day
-            hour = now.hour
-            if hour >= 4 and last_day != day:
-                self.update_display()
-                last_day = day
-                time.sleep(60 * 60)
+    def update(self, msg=None):
+        now = datetime.now()
+        hour = now.hour
+        if hour >= 4:
+            self.update_display(msg=msg)
+            return 24 * 60 * 60
+        else:
+            return (4 - hour) * 60 * 60
 
     def run_server(self):
         self.server.set_fn_new_client(self.new_client)
@@ -105,7 +107,23 @@ class Organiser:
                 if chore.who == 0:
                     self.due_today_johannes.append(chore)
         self.due_today_linus.sort(key=lambda x: x.next_date)
+        newly_sorted = self.due_today_linus
+        for chore in self.due_today_linus:
+            if chore != "" and chore.fixed:
+                self.due_today_linus.remove(chore)
+                newly_sorted = [chore] + self.due_today_linus
+                break
+        self.due_today_linus = newly_sorted
+
         self.due_today_johannes.sort(key=lambda x: x.next_date)
+        newly_sorted = self.due_today_johannes
+        for chore in self.due_today_johannes:
+            if chore != "" and chore.fixed:
+                self.due_today_johannes.remove(chore)
+                newly_sorted = [chore] + self.due_today_johannes
+                break
+        self.due_today_johannes = newly_sorted
+
         if len(self.due_today_johannes) == 0:
             self.due_today_johannes = [""]
         if len(self.due_today_linus) == 0:
@@ -128,7 +146,7 @@ class Organiser:
         print(len(self.chores))
         for c in self.chores:
             print(c.name, c.next_date)
-            if c.fixed:
+            if not c.fixed:
                 chores.append({
                     "name": c.name,
                     "last": c.next_date.strftime("%d-%m-%Y"),
@@ -151,6 +169,8 @@ if __name__ == "__main__":
     organiser = Organiser()
     socket = Server(organiser)
     x = threading.Thread(target=socket.run_server)
-    y = threading.Thread(target=socket.update)
+
+    stopFlag = Event()
+    thread = timedThread(stopFlag, func=socket.update)
+    thread.start()
     x.start()
-    y.start()
