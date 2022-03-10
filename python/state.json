@@ -1,0 +1,54 @@
+{
+  "chores": [
+    {
+      "name": "Bad",
+      "last": "23-10-2021",
+      "period": 6,
+      "who": 0
+    },
+    {
+      "name": "Chuchi",
+      "last": "20-10-2021",
+      "period": 10,
+      "who": 1
+    },
+    {
+      "name": "Abfall",
+      "last": "24-10-2021",
+      "period": 13,
+      "who": 1
+    },
+    {
+      "name": "Bode ufneh",
+      "last": "23-10-2021",
+      "period": 7,
+      "who": 0
+    },
+    {
+      "name": "Komposcht",
+      "last": "26-10-2021",
+      "period": 8,
+      "who": 0
+    },
+    {
+      "name": "Glas und Metall",
+      "last": "5-11-2021",
+      "period": 15,
+      "who": 1
+    }
+  ],
+  "fixedChores": [
+    {
+      "name": "Papier und Plastik",
+      "period": 14,
+      "last": "27-10-2021",
+      "who": 0
+    },
+    {
+      "name": "Karton",
+      "period": 14,
+      "last": "3-11-2021",
+      "who": 1
+    }
+  ]
+}
