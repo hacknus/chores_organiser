@@ -19,13 +19,13 @@ class Chore:
         if self.name == "Bode ufneh":
             self.name = "Staubsuuge"
             self.counter += 1
-            if self.counter > 2:
+            if self.counter >= 2:
                 self.counter = 0
                 self.who = 1 - self.who
         elif self.name == "Staubsuuge":
             self.name = "Bode ufneh"
             self.counter += 1
-            if self.counter > 2:
+            if self.counter >= 2:
                 self.counter = 0
                 self.who = 1 - self.who
         else:
