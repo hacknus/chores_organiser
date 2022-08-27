@@ -70,8 +70,8 @@ class Server:
         df_linus.sort_values(by=['due'], inplace=True)
         df_johannes = pd.DataFrame(data=johannes)
         df_johannes.sort_values(by=['due'], inplace=True)
-        df_linus.to_csv("linus.csv",index=False)
-        df_johannes.to_csv("johannes.csv",index=False)
+a        df_linus.to_csv("linus.csv", index=False)
+        df_johannes.to_csv("johannes.csv", index=False)
 
         if reset:
             self.organiser.shifted_johannes = 0
@@ -92,12 +92,21 @@ class Server:
         else:
             row1 = msg["row1"]
             row2 = msg["row2"]
+        if row1 == " ":
+            row1 = self.available_message("johannes")
+        if row2 == " ":
+            row2 = self.available_message("linus")
         message = row1 + "\n" + row2
         if self.display:
             print("updating display")
             print(f"sending message: {message}")
             self.server.send_message(self.display, message)
             print("updated display")
+
+    def available_message(self, name):
+        with open("message.json") as file:
+            d = json.load(file)
+        return d[name]
 
     def update(self, msg=None):
         now = datetime.now()
