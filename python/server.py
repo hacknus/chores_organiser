@@ -70,7 +70,7 @@ class Server:
         df_linus.sort_values(by=['due'], inplace=True)
         df_johannes = pd.DataFrame(data=johannes)
         df_johannes.sort_values(by=['due'], inplace=True)
-a        df_linus.to_csv("linus.csv", index=False)
+        df_linus.to_csv("linus.csv", index=False)
         df_johannes.to_csv("johannes.csv", index=False)
 
         if reset:
